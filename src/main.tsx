@@ -6,7 +6,7 @@ import { store } from "./store";
 // components
 import App from "./App.tsx";
 // styles
-import "./index.css";
+import "./styles/index.css";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
