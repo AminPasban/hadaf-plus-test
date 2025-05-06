@@ -1,17 +1,20 @@
+import { lazy, Suspense } from "react";
 // layouts
 import Header from "./layouts/Header";
 // context
 import { MessageProvider } from "./contexts/MessageContext";
 // components
 import DomainsTable from "./components/DomainsTable";
-import ManageDomainDrawer from "./components/ManageDomainDrawer";
+const ManageDomainDrawer = lazy(() => import("./components/ManageDomainDrawer"));
 
 function App() {
     return (
         <div className="container mx-auto font-base">
             <Header />
             <MessageProvider>
-                <ManageDomainDrawer />
+                <Suspense fallback={null}>
+                    <ManageDomainDrawer />
+                </Suspense>
                 <main className="pt-4 pb-12">
                     <DomainsTable />
                 </main>

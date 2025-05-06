@@ -2,9 +2,10 @@ import { TableColumnsType } from "antd";
 // components
 import DomainCell from "./DomainCell";
 import ActionsCell from "./ActionsCell";
+// utils
+import { capitalizeFirstLetter } from "../../utils";
 // types
 import { IDomainStatus, IDomainTableData } from "../../types";
-import { capitalizeFirstLetter } from "../../utils";
 
 export const TABLE_COLUMNS: TableColumnsType<IDomainTableData> = [
     {
