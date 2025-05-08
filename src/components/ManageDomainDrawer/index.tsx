@@ -1,16 +1,18 @@
+import { Drawer } from "antd";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Drawer } from "antd";
 // store
 import { RootState } from "../../store";
 import { setDrawerOpen } from "../../store/manageDomainDrawerSlice";
 // context
 import { useMessageApi } from "../../contexts/MessageContext";
 // sections
-import ManageDomainDrawerForm from "./ManageDomainDrawerForm";
 import DrawerFooter from "./DrawerFooter";
+import ManageDomainDrawerForm from "./ManageDomainDrawerForm";
 // services
 import { useAddDomainMutation, useEditDomainMutation } from "../../services/domain";
+// utils
+import { getApiErrorMessage } from "../../utils";
 // types
 import { IDomain } from "../../types";
 
@@ -30,14 +32,16 @@ function ManageDomainDrawer() {
     const handleManageDomain = async (formData: Partial<IDomain>) => {
         const payload = editingDomain
             ? editDomain({ id: editingDomain.id, data: formData })
-            : addDomain({ ...formData, createdDate: Date.now() });
+            : addDomain({ ...formData, createdDate: Math.floor(Date.now() / 1000) });
 
         return payload.unwrap();
     };
 
     const handleClose = () => {
-        addDomainResult.reset();
-        editDomainResult.reset();
+        if (isError || isSuccess) {
+            addDomainResult.reset();
+            editDomainResult.reset();
+        }
         dispatch(setDrawerOpen(false));
     };
 
@@ -46,8 +50,8 @@ function ManageDomainDrawer() {
             messageApi.success(`Domain was successfully ${editingDomain ? "edited" : "added"}`);
             handleClose();
         }
-        if (isError && error && "status" in error) {
-            messageApi.error(`${error.status} ${JSON.stringify(error.data)}`);
+        if (isError && error) {
+            messageApi.error(getApiErrorMessage(error));
         }
     }, [isSuccess, isError]);
 
@@ -63,7 +67,11 @@ function ManageDomainDrawer() {
             }}
             footer={<DrawerFooter isLoading={isLoading} isEditMode={!!editingDomain} handleClose={handleClose} />}
         >
-            <ManageDomainDrawerForm editingDomain={editingDomain} handleManageDomain={handleManageDomain} />
+            <ManageDomainDrawerForm
+                isDrawerOpen={isOpen}
+                editingDomain={editingDomain}
+                handleManageDomain={handleManageDomain}
+            />
         </Drawer>
     );
 }

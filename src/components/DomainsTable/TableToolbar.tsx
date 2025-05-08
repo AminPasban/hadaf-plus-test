@@ -22,8 +22,8 @@ function TableToolbar({ filter, setFilter }: Readonly<Props>) {
 
     // Handle debounce search
     useEffect(() => {
-        const timeout = setTimeout(() => setFilter((prevState) => ({ ...prevState, search })), 500);
-        return () => clearTimeout(timeout);
+        const timer = setTimeout(() => setFilter((prevState) => ({ ...prevState, search: search.trim() })), 500);
+        return () => clearTimeout(timer);
     }, [search]);
 
     return (

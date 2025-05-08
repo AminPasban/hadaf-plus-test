@@ -30,7 +30,7 @@ export const TABLE_COLUMNS: TableColumnsType<IDomainTableData> = [
         width: "20%",
         onCell: ({ status }) => ({
             className:
-                status === IDomainStatus.Verified.toLowerCase()
+                status.toLowerCase() === IDomainStatus.Verified
                     ? "text-green-600"
                     : status === IDomainStatus.Pending
                     ? "text-yellow-600"

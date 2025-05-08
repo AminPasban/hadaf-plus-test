@@ -4,6 +4,8 @@ import { Dropdown, Spin } from "antd";
 import { useMessageApi } from "../../contexts/MessageContext";
 // services
 import { useDeleteDomainMutation, useEditDomainMutation } from "../../services/domain";
+// utils
+import { getApiErrorMessage } from "../../utils";
 // types
 import { IDomain, IDomainStatus } from "../../types";
 
@@ -23,15 +25,19 @@ function ActionsCell({ domain }: Readonly<Props>) {
 
     const isDomainVerified = domain.status === IDomainStatus.Verified;
 
-    const handleEditDomain = () => editDomain({ id: domain.id, data: { status: IDomainStatus.Verified } }).unwrap();
-    const handleDeleteDomain = () => deleteDomain(domain.id).unwrap();
+    const handleEditDomain = () => {
+        editDomain({ id: domain.id, data: { status: IDomainStatus.Verified } }).unwrap();
+    };
+    const handleDeleteDomain = () => {
+        deleteDomain(domain.id).unwrap();
+    };
 
     useEffect(() => {
         if (isSuccess) {
             messageApi.success("Domain was successfully deleted");
         }
-        if (isError && error && "status" in error) {
-            messageApi.error(`${error.status} ${JSON.stringify(error.data)}`);
+        if (isError && error) {
+            messageApi.error(getApiErrorMessage(error));
         }
     }, [isLoading, isSuccess, isError]);
 

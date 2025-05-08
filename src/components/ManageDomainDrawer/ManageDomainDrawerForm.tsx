@@ -1,5 +1,5 @@
-import { FormEvent, useEffect, useState } from "react";
-import { Input, Select, Typography } from "antd";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { Input, InputRef, Select, Typography } from "antd";
 // constants
 import { DOMAIN_REGEX } from "../../constants";
 // types
@@ -8,11 +8,13 @@ import { IDomain, IDomainFormErrors, IDomainStatus } from "../../types";
 const { Text } = Typography;
 
 interface Props {
+    isDrawerOpen: boolean;
     editingDomain: IDomain | null;
     handleManageDomain: (formDate: Partial<IDomain>) => Promise<IDomain>;
 }
 
-function ManageDomainDrawerForm({ editingDomain, handleManageDomain }: Readonly<Props>) {
+function ManageDomainDrawerForm({ isDrawerOpen, editingDomain, handleManageDomain }: Readonly<Props>) {
+    const inputRef = useRef<InputRef>(null);
     const [formData, setFormData] = useState<Partial<IDomain>>({});
     const [formErrors, setFormErrors] = useState<IDomainFormErrors>({});
     const [isSubmitClicked, setIsSubmitClicked] = useState(false);
@@ -21,7 +23,7 @@ function ManageDomainDrawerForm({ editingDomain, handleManageDomain }: Readonly<
         event.preventDefault();
         setIsSubmitClicked(true);
         if (Object.values(formErrors).some((error) => error)) return;
-        
+
         handleManageDomain(formData).then(() => {
             setFormData({});
             setIsSubmitClicked(false);
@@ -33,6 +35,15 @@ function ManageDomainDrawerForm({ editingDomain, handleManageDomain }: Readonly<
     };
 
     useEffect(() => {
+        setFormErrors(() => ({
+            domainRequired: !formData.domain,
+            domainInvalidFormat: !!formData.domain && !DOMAIN_REGEX.test(formData.domain),
+            isActiveMissing: formData.isActive === undefined,
+            statusMissing: !formData.status,
+        }));
+    }, [formData]);
+
+    useEffect(() => {
         setIsSubmitClicked(false);
         setFormData({
             domain: editingDomain?.domain,
@@ -42,19 +53,17 @@ function ManageDomainDrawerForm({ editingDomain, handleManageDomain }: Readonly<
     }, [editingDomain]);
 
     useEffect(() => {
-        setFormErrors(() => ({
-            domainRequired: !formData.domain,
-            domainInvalidFormat: !!formData.domain && !DOMAIN_REGEX.test(formData.domain),
-            isActiveMissing: formData.isActive === undefined,
-            statusMissing: !formData.status,
-        }));
-    }, [formData]);
+        const timer = setTimeout(() => inputRef.current?.focus(), 100);
+        return () => clearTimeout(timer);
+    }, [isDrawerOpen]);
 
     return (
         <form id="DomainForm" onSubmit={handleSubmit} className="mb-8">
             {/*---- Domain input ----start-*/}
             <div className="flex flex-col gap-2">
                 <Input
+                    ref={inputRef}
+                    maxLength={253}
                     value={formData.domain}
                     placeholder="EX: https://www.bridged.media"
                     className="h-12"
